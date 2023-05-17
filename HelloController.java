@@ -38,7 +38,7 @@ public class HelloController {
   
     //@PostMapping("/authenticate")
     @PostMapping("/authenticate")
-    public Map<String, String> hello(/*@RequestParam Map<String, String> payload*/) throws FileNotFoundException, IOException{
+    public Map<String, String> hello(/*@RequestParam Map<String, String> payload*/) throws FileNotFoundException{
       /*  
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -52,8 +52,15 @@ public class HelloController {
         InputStream inputStream = new FileInputStream(new File("src/main/java/com/example/auth/requestFile.json"));
         ObjectMapper mapper = new ObjectMapper();
         TypeReference<Map<String, String>> typeReference = new TypeReference<Map<String, String>>(){};
-        return mapper.readValue(inputStream, typeReference);
+        try {
+            return mapper.readValue(inputStream, typeReference);
+        } catch (IOException ex) {
+            Logger.getLogger(HelloController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
-        
+        return mapper.writeValueAsString( inputStream);
     } 
+    public void getPayload() throws JsonProcessingException{
+        System.out.println(new ObjectMapper().writeValueAsString(new File("src/main/java/com/example/auth/requestFile.json")));
+    }
 }
