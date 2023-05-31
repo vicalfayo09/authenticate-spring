@@ -1,0 +1,8 @@
+## YAML Template.
+---
+auth:
+  jwt:
+    issuer: "Spring Boot App"
+    audience: "Auth App"
+    ttl-in-seconds: 3600
+    secret: "sBGo7mok5p2PUuUIdGPNf3Gt0EfkTBTW3gwjRgZoa19BDDJt3w725f+b4HidvP3rHg0KrxEie4997chnnL5Z8pBmo/kTlOKiLcXf1TzR03cWFoBqkXVW/2oL86X0+M3K/CfJvt4ewLCkFxTDdExXyBVdeAtrH4JbBFwdAnyFEPOOWA+cL96R8EjX8KDNX3fdX8ytyMRcm9wqm/Xn8oH4DDho0+k0KgxKnJUCIg=="
