@@ -4,28 +4,37 @@
  */
 package com.example.auth;
 
+
+//import java.io.FileReader;
+//import com.fasterxml.jackson.core.JsonParser;
+//import com.fasterxml.jackson.core.JsonProcessingException;
+//import com.fasterxml.jackson.core.type.TypeReference;
 //import org.springframework.web.bind.annotation.GetMapping;
-
-
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+//import org.springframework.web.bind.annotation.RequestParam;
+import com.example.auth.jwt.JWTResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.JSONObject;
-//import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+//import java.net.URI;
+//import java.util.HashMap;
+//import java.util.Map;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
+//import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -35,32 +44,35 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class HelloController {
-  
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JWTResponse jwtResponse;
     //@PostMapping("/authenticate")
-    @PostMapping("/authenticate")
-    public Map<String, String> hello(/*@RequestParam Map<String, String> payload*/) throws FileNotFoundException{
-      /*  
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonPayload = mapper.writeValueAsString(payload);
-            return jsonPayload;
-        } catch (JsonProcessingException ex) {
-            Logger.getLogger(HelloController.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-        
-        
-        InputStream inputStream = new FileInputStream(new File("src/main/java/com/example/auth/requestFile.json"));
+    @PostMapping(path = "/authenticate", 
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> hello(@RequestBody User user1) throws FileNotFoundException, IOException{
+   
+        UsernamePasswordAuthenticationToken loginCredentials =
+                new UsernamePasswordAuthenticationToken(
+                        user1.getUsername(), user1.getPassword());
+         Authentication authentication =
+                authenticationManager.authenticate(loginCredentials);
+        /*InputStream inputStream = new FileInputStream(new File("src/main/java/com/example/auth/requestFile.json"));
         ObjectMapper mapper = new ObjectMapper();
-        TypeReference<Map<String, String>> typeReference = new TypeReference<Map<String, String>>(){};
-        try {
-            return mapper.readValue(inputStream, typeReference);
-        } catch (IOException ex) {
-            Logger.getLogger(HelloController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        User user = mapper.readValue(inputStream, User.class);*/
         
-        return mapper.writeValueAsString( inputStream);
-    } 
-    public void getPayload() throws JsonProcessingException{
-        System.out.println(new ObjectMapper().writeValueAsString(new File("src/main/java/com/example/auth/requestFile.json")));
+        User user = (User) authentication.getPrincipal();
+        String jwtToken = jwtResponse.createToken(user);
+        
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
+                .build();
+        
+        
     }
-}
+    
+
+}  
